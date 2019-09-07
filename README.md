@@ -1,0 +1,2 @@
+# block_bingo_simulator
+ブロックビンゴのシュミレーター
