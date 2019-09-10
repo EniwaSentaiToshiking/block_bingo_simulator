@@ -3,7 +3,8 @@
 
 # ## ビンゴブロックエリアとルールを元にした情報
 
-# In[9]:
+# In[34]:
+
 
 
 INF = 10000000
@@ -17,84 +18,33 @@ bla = 'black'
 blocks_color = [yel, yel, gre, gre,  blu, blu,  red, red, bla]
 
 block_bingo_area = [
-    (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6),
-    (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
-    (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6),
-    (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6),
-    (4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6),
-    (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 6),
-    (6, 0), (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6)]
+(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6),
+(1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+(2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6),
+(3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6),
+(4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6),
+(5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 6),
+(6, 0), (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6)]
 
-crosscircle_position = [
-    (0, 0), (0, 2), (0, 4), (0, 6),
-    (2, 0), (2, 2), (2, 4), (2, 6),
-    (4, 0), (4, 2), (4, 4), (4, 6),
-    (6, 0), (6, 2), (6, 4), (6, 6)
+crosscircle_positions = [
+(0, 0), (0, 2), (0, 4), (0, 6),
+(2, 0), (2, 2), (2, 4), (2, 6),
+(4, 0), (4, 2), (4, 4), (4, 6),
+(6, 0), (6, 2), (6, 4), (6, 6)
 ]
 
-blockcircle_position = [
-    (1,1), (1,3), (1,5), (3,1), (3,5), (5,1), (5,3), (5,5)
+blockcircle_positions = [
+(1,1), (1,3), (1,5), (3,1), (3,5), (5,1), (5,3), (5,5)
 ]
 
-first_set_block_position = [
-    (0,0), (2,2), (4,0), (6,2), (0,4), (2,6), (4,4), (6,6)
+first_set_block_positions = [
+(0,0), (2,2), (4,0), (6,2), (0,4), (2,6), (4,4), (6,6)
 ]
 
 first_set_colorblock_number = 8
-first_set_blackblock_number = 6 
+first_set_blackblock_number = 6 # 黒ブロックが初期化で置かれるブロックサークルの位置
 
-
-# ## 仮想ビングブロックエリアの初期化
-# ### ノードの追加
-
-# In[10]:
-
-
-# ダイクストラ法 Left
-
-import networkx as nx # 経路探索用
-import random #組み合わせよう
-random.seed(42)
-
-Graph = nx.DiGraph()
-
-# ブロックビンゴエリアの必要な情報を仮想ビンゴブロックエリアに追加していく
-Graph.add_nodes_from(block_bingo_area)
-
-for blockcircle_num, position in enumerate(blockcircle_position, start=1):
-    Graph.nodes[position]['set_block'] = False
-    Graph.nodes[position]['blockcircle_number'] = blockcircle_num
-    if position in {(1,1), (3,5)}:
-        Graph.nodes[position]['set_blockcircle_color'] = yel
-    elif position in {(1,3), (5,1)}:
-         Graph.nodes[position]['set_blockcircle_color'] = gre
-    elif position in {(1,5), (5,3)}:
-         Graph.nodes[position]['set_blockcircle_color'] = red
-    elif position in {(3,1), (5,5)}:
-         Graph.nodes[position]['set_blockcircle_color'] = blu
-    
-    if blockcircle_num == first_set_colorblock_number:
-        Graph.nodes[position]['set_block'] = True
-        Graph.nodes[position]['set_blockcolor'] =  Graph.nodes[position]['set_blockcircle_color']
-        
-    if blockcircle_num == first_set_blackblock_number:
-        Graph.nodes[position]['set_blockcolor'] = bla
-
-# 初期化の時，ブロックサークル上に置かれているブロックの色を特定，排除
-colorblock = Graph.nodes[blockcircle_position[first_set_colorblock_number-1]]['set_blockcircle_color']
-blocks_color.remove(colorblock)
-crosscircle_blockcolors = random.sample(blocks_color, 8)
-print('init put crosscircle blocks {} .'.format(crosscircle_blockcolors))
-
-for color, position in enumerate(first_set_block_position, start=0):
-    Graph.nodes[position]['set_block'] = True
-    Graph.nodes[position]['set_blockcolor'] = crosscircle_blockcolors[color]
-
-
-# ### エッジの追加
-
-# In[11]:
-
+bonus_number = 4
 
 #エッジの生成
 block_bingo_area_edge=[
@@ -265,17 +215,73 @@ block_bingo_area_edge=[
 ((5, 6), (6, 6),1),
 ((5, 6), (4, 6),1),
 ((6, 6), (6, 5),1),
-((6, 6), (5, 6),1),
+((6, 6), (5, 6),1)
 ]
 
 
-# In[12]:
+# ## 仮想ビングブロックエリアの初期化
+# 
+# ### random.seedの値を変更してもらえると組み合わせが変わります
+# #### 常にバラバラな初期化を求めるあなた randam.seedをコメントアウトすればOKです
+
+# In[35]:
 
 
-Graph.add_weighted_edges_from(block_bingo_area_edge)
+# ダイクストラ法 Left
+
+import networkx as nx # 経路探索用
+import random #組み合わせよう
+random.seed(42)
+
+Graph = nx.DiGraph()
+
+def init_block_bingo_area():
+    # ブロックビンゴエリアの必要な情報を仮想ビンゴブロックエリアに追加していく
+    Graph.add_nodes_from(block_bingo_area)
+
+    for blockcircle_num, position in enumerate(blockcircle_positions, start=1):
+        Graph.nodes[position]['set_block'] = False
+        #Graph.nodes[position]['set_blackblock'] = False
+        
+        Graph.nodes[position]['blockcircle_number'] = blockcircle_num
+        if position in {(1,1), (3,5)}:
+            Graph.nodes[position]['set_blockcircle_color'] = yel
+        elif position in {(1,3), (5,1)}:
+             Graph.nodes[position]['set_blockcircle_color'] = gre
+        elif position in {(1,5), (5,3)}:
+             Graph.nodes[position]['set_blockcircle_color'] = red
+        elif position in {(3,1), (5,5)}:
+             Graph.nodes[position]['set_blockcircle_color'] = blu
+
+        if blockcircle_num == first_set_colorblock_number:
+            Graph.nodes[position]['set_block'] = True
+            Graph.nodes[position]['set_blockcolor'] =  Graph.nodes[position]['set_blockcircle_color']
+
+        if blockcircle_num == first_set_blackblock_number:
+            Graph.nodes[position]['set_blockcolor'] = bla
+           # Graph.nodes[position]['set_blackblock'] = True
+
+    # 初期化の時，ブロックサークル上に置かれているブロックの色を特定，排除
+    colorblock = Graph.nodes[blockcircle_positions[first_set_colorblock_number-1]]['set_blockcircle_color']
+    blocks_color.remove(colorblock)
+    crosscircle_blockcolors = random.sample(blocks_color, 8)
+    print('init put crosscircle blocks {} .\n'.format(crosscircle_blockcolors))
+    
+    #　交点サークル上にブロックを配置
+    for color, position in enumerate(first_set_block_positions, start=0):
+        Graph.nodes[position]['set_block'] = True
+        Graph.nodes[position]['set_blockcolor'] = crosscircle_blockcolors[color]
+        
+    Graph.add_weighted_edges_from(block_bingo_area_edge)
 
 
-# In[14]:
+# In[36]:
+
+
+init_block_bingo_area()
+
+
+# In[37]:
 
 
 # for g in Graph.nodes(data=True):
@@ -284,33 +290,64 @@ Graph.add_weighted_edges_from(block_bingo_area_edge)
 
 # ### Lコースの最短探索経路を出す
 
-# In[15]:
+# In[27]:
+
+
+for g in Graph.nodes(data=True):
+    print(g)
+
+# crosscircle_blockcolors
+# Graph.nodes[blockcircle_position[first_set_colorblock_number-1]]['set_blockcircle_color']
+# shortest_route={'path':[], 'cost':INF}
+# for route in route_list:
+#     if  route['cost'] < shortest_route['cost']:
+#         shortest_route = route
+# shortest_route
+
+# for block_position in blockcircle_position:
+#     print(block_position)
+#     print(first_set_blackblock_number == Graph.nodes[block_position]['blockcircle_number'])
+    
+# for blockcir_position in blockcircle_position:
+#     print(blockcir_position)
+#     Graph.nodes[blockcir_position]['set_blockcircle_color']
+# start = shortest_route['path'][-2]
+# start
+# removed_block4crosscircle_position
+
+
+# In[38]:
 
 
 start = (4,0)
 i=0
-while(True):
+
+while(i<8):
     i += 1
     print("{}".format(i))
-    if i >= 8:
-        break
     #交点サークル上のブロックとブロックサークルの色が同じ場合距離を計算する
     route_list=[]
-    for block_position in first_set_block_position: #　運ぶブロックの個数分
+    for block_position in first_set_block_positions: #　運ぶブロックの個数分
         if not Graph.nodes[block_position]['set_block']: #ブロックが置かれてなかったらその地点からは考えなくていいよね
             continue
-        for blockcir_position in blockcircle_position:
-            if Graph.nodes[blockcir_position]['set_block']:
+        for blockcircle_position in blockcircle_positions:
+            if Graph.nodes[blockcircle_position]['set_block']:
                 continue
-            if Graph.nodes[block_position]['set_blockcolor'] == Graph.nodes[blockcir_position]['set_blockcircle_color']:
-                carry_color =Graph.nodes[block_position]['set_blockcolor']
-#                 print('color:{}'.format(carry_color))
+            if Graph.nodes[block_position]['set_blockcolor'] == Graph.nodes[blockcircle_position]['set_blockcircle_color']:
+                carry_color = Graph.nodes[block_position]['set_blockcolor']
                 move_path = nx.dijkstra_path(Graph, source=start, target=block_position, weight='weight')
-                carry_path =  nx.dijkstra_path(Graph, source=block_position, target=blockcir_position, weight='weight')
+                carry_path =  nx.dijkstra_path(Graph, source=block_position, target=blockcircle_position, weight='weight')
                 one_route_path = move_path+carry_path
                 one_route_cost = len(move_path)+len(carry_path)
-#                 print('path and cost: {} {}'.format(one_route_path, one_route_cost))
                 route_list.append({'path': one_route_path, 'cost':one_route_cost, 'block_on_crosscircle_pos':move_path[-1], 'carry_color': carry_color})
+            elif Graph.nodes[blockcircle_position]['blockcircle_number'] == bonus_number and Graph.nodes[block_position]['set_blockcolor'] == bla:
+                carry_color = Graph.nodes[block_position]['set_blockcolor']
+                move_path = nx.dijkstra_path(Graph, source=start, target=block_position, weight='weight')
+                carry_path =  nx.dijkstra_path(Graph, source=block_position, target=blockcircle_position, weight='weight')
+                one_route_path = move_path+carry_path
+                one_route_cost = len(move_path)+len(carry_path)
+                route_list.append({'path': one_route_path, 'cost':one_route_cost, 'block_on_crosscircle_pos':move_path[-1], 'carry_color': carry_color})
+    
     # 最小の1ルートを決定する
     shortest_route={'path':[], 'cost':INF}
     for route in route_list:
@@ -320,40 +357,21 @@ while(True):
 
     #走行体の現在位置とブロックの状態を更新
     #走行体の現在位置を更新
-    start = shortest_route['path'][-2]
-    #ブロックの状態を更新
-    # ブロックサークル
-    placed_blockcircle_position = shortest_route['path'][-1]
-    Graph.nodes[placed_blockcircle_position]['set_block'] = True
-    Graph.nodes[placed_blockcircle_position]['set_blockcolor'] = shortest_route['carry_color']
-    # 交点サークル
-    removed_block4crosscircle_position = shortest_route['block_on_crosscircle_pos']
-    Graph.nodes[removed_block4crosscircle_position]['set_block'] = False
-    Graph.nodes[removed_block4crosscircle_position]['set_blockcolor'] = None
-
-
-# In[7]:
-
-
-for g in Graph.nodes(data=True):
-    print(g)
-# crosscircle_blockcolors
-# Graph.nodes[blockcircle_position[first_set_colorblock_number-1]]['set_blockcircle_color']
-# shortest_route={'path':[], 'cost':INF}
-# for route in route_list:
-#     if  route['cost'] < shortest_route['cost']:
-#         shortest_route = route
-# shortest_route
-# for block_position in first_set_block_position:
-#     print(block_position)
-#     print(Graph.nodes[block_position]['set_blockcolor'])
-    
-# for blockcir_position in blockcircle_position:
-#     print(blockcir_position)
-#     Graph.nodes[blockcir_position]['set_blockcircle_color']
-# start = shortest_route['path'][-2]
-# start
-# removed_block4crosscircle_position
+    if shortest_route['cost'] < 150:
+        start = shortest_route['path'][-2]
+        #ブロックの状態を更新
+        # ブロックサークル
+        placed_blockcircle_position = shortest_route['path'][-1]
+        Graph.nodes[placed_blockcircle_position]['set_block'] = True
+        Graph.nodes[placed_blockcircle_position]['set_blockcolor'] = shortest_route['carry_color']
+        # 黒ブロック配置の場合はブロックサークル内にブロックを2個置く必要があるため'set_block'のリセット
+        if Graph.nodes[placed_blockcircle_position]['blockcircle_number'] == bonus_number:
+            print(placed_blockcircle_position)
+            Graph.nodes[placed_blockcircle_position]['set_block'] = False
+        # 交点サークル
+        removed_block4crosscircle_position = shortest_route['block_on_crosscircle_pos']
+        Graph.nodes[removed_block4crosscircle_position]['set_block'] = False
+        Graph.nodes[removed_block4crosscircle_position]['set_blockcolor'] = None
 
 
 # ## 素材置き場
