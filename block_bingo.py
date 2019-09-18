@@ -1,10 +1,28 @@
-
-# coding: utf-8
+# -*- coding: utf-8 -*-
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.4'
+#       jupytext_version: 1.2.3
+#   kernelspec:
+#     display_name: py3.7.4
+#     language: python
+#     name: py3.7.4
+# ---
 
 # ## ビンゴブロックエリアとルールを元にした情報
 
-# In[34]:
+# ## 仮想ビングブロックエリアの初期化
+#
+# ### random.seedの値を変更してもらえると組み合わせが変わります
+# #### 常にバラバラな初期化を求めるあなた randam.seedをコメントアウトすればOKです
 
+# + {"code_folding": [64, 104, 148, 187]}
+# ダイクストラ法 Left
 
 
 INF = 10000000
@@ -15,16 +33,35 @@ blu = 'blue'
 red = 'red'
 bla = 'black'
 
+# 走行体の方角
+north = "North"
+north_east = "Northeast"
+east = "East"
+south_east = "Southeast"
+south = "South"
+south_west = "Southwest"
+west = "West"
+north_west = "Northwest"
+
+
+
 blocks_color = [yel, yel, gre, gre,  blu, blu,  red, red, bla]
 
 block_bingo_area = [
 (0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6),
+    
 (1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6),
+    
 (2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6),
+    
 (3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6),
+    
 (4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6),
+    
 (5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 6),
-(6, 0), (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6)]
+    
+(6, 0), (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6)
+]
 
 crosscircle_positions = [
 (0, 0), (0, 2), (0, 4), (0, 6),
@@ -34,200 +71,54 @@ crosscircle_positions = [
 ]
 
 blockcircle_positions = [
-(1,1), (1,3), (1,5), (3,1), (3,5), (5,1), (5,3), (5,5)
+(1,1), (1,3), (1,5), (3,1), (3,5), (5,1), (5,3), (5,5)# 1,2,3,4,5,6,7,8
 ]
 
+## ここがほしみ
 first_set_block_positions = [
 (0,0), (2,2), (4,0), (6,2), (0,4), (2,6), (4,4), (6,6)
 ]
 
-first_set_colorblock_number = 8
+first_set_colorblock_number = 8 #ここは数字でいただける？
 first_set_blackblock_number = 6 # 黒ブロックが初期化で置かれるブロックサークルの位置
 
 bonus_number = 4
+##
 
 #エッジの生成
 block_bingo_area_edge=[
-((0, 0), (0, 1),1),
-((0, 0), (1, 0),1),
-((1, 0), (1, 1),5),
-((1, 0), (2, 0),1),
-((1, 0), (0, 0),1),
-((2, 0), (2, 1),1),
-((2, 0), (3, 0),1),
-((2, 0), (1, 0),1),
-((3, 0), (3, 1),5),
-((3, 0), (4, 0),1),
-((3, 0), (2, 0),1),
-((4, 0), (4, 1),1),
-((4, 0), (5, 0),1),
-((4, 0), (3, 0),1),
-((5, 0), (5, 1),5),
-((5, 0), (6, 0),1),
-((5, 0), (4, 0),1),
-((6, 0), (6, 1),1),
-((6, 0), (5, 0),1),
-((0, 1), (0, 2),1),
-((0, 1), (0, 0),1),
-((0, 1), (1, 1),5),
-((1, 1), (1, 2),5),
-((1, 1), (1, 0),5),
-((1, 1), (2, 1),5),
-((1, 1), (0, 1),5),
-((2, 1), (2, 2),1),
-((2, 1), (2, 0),1),
-((2, 1), (3, 1),5),
-((2, 1), (1, 1),5),
-((3, 1), (3, 2),5),
-((3, 1), (3, 0),5),
-((3, 1), (4, 1),5),
-((3, 1), (2, 1),5),
-((4, 1), (4, 2),1),
-((4, 1), (4, 0),1),
-((4, 1), (5, 1),5),
-((4, 1), (3, 1),5),
-((5, 1), (5, 2),5),
-((5, 1), (5, 0),5),
-((5, 1), (6, 1),5),
-((5, 1), (4, 1),5),
-((6, 1), (6, 2),5),
-((6, 1), (6, 0),1),
-((6, 1), (5, 1),5),
-((0, 2), (0, 3),1),
-((0, 2), (0, 1),1),
-((0, 2), (1, 2),1),
-((1, 2), (1, 3),5),
-((1, 2), (1, 1),5),
-((1, 2), (2, 2),1),
-((1, 2), (0, 2),1),
-((2, 2), (2, 3),1),
-((2, 2), (2, 1),1),
-((2, 2), (3, 2),1),
-((2, 2), (1, 2),1),
-((3, 2), (3, 3),5),
-((3, 2), (3, 1),5),
-((3, 2), (4, 2),1),
-((3, 2), (2, 2),1),
-((4, 2), (4, 3),1),
-((4, 2), (4, 1),1),
-((4, 2), (5, 2),1),
-((4, 2), (3, 2),1),
-((5, 2), (5, 3),5),
-((5, 2), (5, 1),5),
-((5, 2), (6, 2),1),
-((5, 2), (4, 2),1),
-((6, 2), (6, 3),1),
-((6, 2), (6, 1),1),
-((6, 2), (5, 2),1),
-((0, 3), (0, 4),1),
-((0, 3), (0, 2),1),
-((0, 3), (1, 3),5),
-((1, 3), (1, 4),5),
-((1, 3), (1, 2),5),
-((1, 3), (2, 3),5),
-((1, 3), (0, 3),5),
-((2, 3), (2, 4),1),
-((2, 3), (2, 2),1),
-((2, 3), (3, 3),5),
-((2, 3), (1, 3),5),
-((3, 3), (3, 4),5),
-((3, 3), (3, 2),5),
-((3, 3), (4, 3),5),
-((3, 3), (2, 3),5),
-((4, 3), (4, 4),1),
-((4, 3), (4, 2),1),
-((4, 3), (5, 3),5),
-((4, 3), (3, 3),5),
-((5, 3), (5, 4),5),
-((5, 3), (5, 2),5),
-((5, 3), (6, 3),5),
-((5, 3), (4, 3),5),
-((6, 3), (6, 4),1),
-((6, 3), (6, 2),1),
-((6, 3), (5, 3),5),
-((0, 4), (0, 5),1),
-((0, 4), (0, 3),1),
-((0, 4), (1, 4),1),
-((1, 4), (1, 5),5),
-((1, 4), (1, 3),5),
-((1, 4), (2, 4),1),
-((1, 4), (0, 4),1),
-((2, 4), (2, 5),1),
-((2, 4), (2, 3),1),
-((2, 4), (3, 4),1),
-((2, 4), (1, 4),1),
-((3, 4), (3, 5),5),
-((3, 4), (3, 3),5),
-((3, 4), (4, 4),1),
-((3, 4), (2, 4),1),
-((4, 4), (4, 5),1),
-((4, 4), (4, 3),1),
-((4, 4), (5, 4),1),
-((4, 4), (3, 4),1),
-((5, 4), (5, 5),5),
-((5, 4), (5, 3),5),
-((5, 4), (6, 4),1),
-((5, 4), (4, 4),1),
-((6, 4), (6, 5),1),
-((6, 4), (6, 3),1),
-((6, 4), (5, 4),5),
-((0, 5), (0, 6),1),
-((0, 5), (0, 4),1),
-((0, 5), (1, 5),5),
-((1, 5), (1, 6),5),
-((1, 5), (1, 4),5),
-((1, 5), (2, 5),5),
-((1, 5), (0, 5),5),
-((2, 5), (2, 6),1),
-((2, 5), (2, 4),1),
-((2, 5), (3, 5),5),
-((2, 5), (1, 5),5),
-((3, 5), (3, 6),5),
-((3, 5), (3, 4),5),
-((3, 5), (4, 5),5),
-((3, 5), (2, 5),5),
-((4, 5), (4, 6),1),
-((4, 5), (4, 4),1),
-((4, 5), (5, 5),5),
-((4, 5), (3, 5),5),
-((5, 5), (5, 6),5),
-((5, 5), (5, 4),5),
-((5, 5), (6, 5),5),
-((5, 5), (4, 5),5),
-((6, 5), (6, 6),1),
-((6, 5), (6, 4),1),
-((6, 5), (5, 5),5),
-((0, 6), (0, 5),1),
-((0, 6), (1, 6),1),
-((1, 6), (1, 5),5),
-((1, 6), (2, 6),1),
-((1, 6), (0, 6),5),
-((2, 6), (2, 5),1),
-((2, 6), (3, 6),1),
-((2, 6), (1, 6),1),
-((3, 6), (3, 5),5),
-((3, 6), (4, 6),1),
-((3, 6), (2, 6),1),
-((4, 6), (4, 5),1),
-((4, 6), (5, 6),1),
-((4, 6), (3, 6),1),
-((5, 6), (5, 5),5),
-((5, 6), (6, 6),1),
-((5, 6), (4, 6),1),
-((6, 6), (6, 5),1),
-((6, 6), (5, 6),1)
+    # (j,i) -> (j, i+2) 右方向のエッジ
+    ((0, 0), (0, 2),1), ((0, 2), (0, 4),1), ((0, 4), (0, 6),1),
+    ((2, 0), (2, 2),1), ((2, 2), (2, 4),1), ((2, 4), (2, 6),1),
+    ((4, 0), (4, 2),1), ((4, 2), (4, 4),1), ((4, 4), (4, 6),1),
+    ((6, 0), (6, 2),1), ((6, 2), (6, 4),1), ((6, 4), (6, 6),1),
+    # (j,i) -> (j, i-2) 左方向エッジ
+    ((0, 6), (0, 4),1), ((0, 4), (0, 2),1), ((0, 2), (0, 0),1),
+    ((2, 6), (2, 4),1), ((2, 4), (2, 2),1), ((2, 2), (2, 0),1),
+    ((4, 6), (4, 4),1), ((4, 4), (4, 2),1), ((4, 2), (4, 0),1),
+    ((6, 6), (6, 4),1), ((6, 4), (6, 2),1), ((6, 2), (6, 0),1),
+    # (j,i) -> (j+2,i) 上方向エッジ
+    ((0, 0), (2, 0),1), ((2, 0), (4, 0),1), ((4, 0), (6, 0),1),
+    ((0, 2), (2, 2),1), ((2, 2), (4, 2),1), ((4, 2), (6, 2),1),
+    ((0, 4), (2, 4),1), ((2, 4), (4, 4),1), ((4, 4), (6, 4),1),
+    ((0, 6), (2, 6),1), ((2, 6), (4, 6),1), ((4, 6), (6, 6),1),
+    # (j,i) -> (j-2,i) 下方向エッジ
+    ((6, 0), (4, 0),1), ((4, 0), (2, 0),1), ((2, 0), (0, 0),1),
+    ((6, 2), (4, 2),1), ((4, 2), (2, 2),1), ((2, 2), (0, 2),1),
+    ((6, 4), (4, 4),1), ((4, 4), (2, 4),1), ((2, 4), (0, 4),1),
+    ((6, 6), (4, 6),1), ((4, 6), (2, 6),1), ((2, 6), (0, 6),1),   
+    #特殊エッジ交点サークルからブロックサークル
+    ((0, 0), (1, 1),1), ((0, 2), (1, 1),1), ((0, 2), (1, 3),1), ((0, 4), (1, 3),1), ((0, 4), (1, 5),1), ((0, 6), (1, 5),1),
+    
+    ((2, 0), (1, 1),1), ((2, 2), (1, 1),1), ((2, 2), (1, 3),1), ((2, 4), (1, 3),1), ((2, 4), (1, 5),1), ((2, 6), (1, 5),1),
+    ((2, 0), (3, 1),1), ((2, 2), (3, 1),1),                                                                ((2, 4), (3, 5),1), ((2, 6), (3, 5),1),
+    
+    ((4, 0), (3, 1),1), ((4, 2), (3, 1),1),                                                                ((4, 4), (3, 5),1), ((4, 6), (3, 5),1),
+    ((4, 0), (5, 1),1), ((4, 2), (5, 1),1), ((4, 2), (5, 3),1), ((4, 4), (5, 3),1), ((4, 4), (5, 5),1), ((4, 6), (5, 5),1),
+    
+    ((6, 0), (5, 1),1), ((6, 2), (5, 1),1), ((6, 2), (5, 3),1), ((6, 4), (5, 3),1), ((6, 4), (5, 5),1), ((6, 6), (5, 5),1),
 ]
 
-
-# ## 仮想ビングブロックエリアの初期化
-# 
-# ### random.seedの値を変更してもらえると組み合わせが変わります
-# #### 常にバラバラな初期化を求めるあなた randam.seedをコメントアウトすればOKです
-
-# In[35]:
-
-
-# ダイクストラ法 Left
 
 import networkx as nx # 経路探索用
 import random #組み合わせよう
@@ -235,7 +126,7 @@ random.seed(42)
 
 Graph = nx.DiGraph()
 
-def init_block_bingo_area():
+def init_block_bingo_areaL():
     # ブロックビンゴエリアの必要な情報を仮想ビンゴブロックエリアに追加していく
     Graph.add_nodes_from(block_bingo_area)
 
@@ -244,9 +135,9 @@ def init_block_bingo_area():
         #Graph.nodes[position]['set_blackblock'] = False
         
         Graph.nodes[position]['blockcircle_number'] = blockcircle_num
-        if position in {(1,1), (3,5)}:
+        if position in {(1,1), (3,5)}: 
             Graph.nodes[position]['set_blockcircle_color'] = yel
-        elif position in {(1,3), (5,1)}:
+        elif position in {(1,3), (5,1)}: 
              Graph.nodes[position]['set_blockcircle_color'] = gre
         elif position in {(1,5), (5,3)}:
              Graph.nodes[position]['set_blockcircle_color'] = red
@@ -273,25 +164,163 @@ def init_block_bingo_area():
         Graph.nodes[position]['set_blockcolor'] = crosscircle_blockcolors[color]
         
     Graph.add_weighted_edges_from(block_bingo_area_edge)
+    
+    
+def init_block_bingo_areaR():
+    # ブロックビンゴエリアの必要な情報を仮想ビンゴブロックエリアに追加していく
+    Graph.add_nodes_from(block_bingo_area)
+
+    for blockcircle_num, position in enumerate(blockcircle_positions, start=1):
+        Graph.nodes[position]['set_block'] = False
+        Graph.nodes[position]['set_blackblock'] = True
+        
+        Graph.nodes[position]['blockcircle_number'] = blockcircle_num
+        if position in {(1,5), (3,1)}: 
+            Graph.nodes[position]['set_blockcircle_color'] = yel
+        elif position in {(1,3), (5,5)}:
+             Graph.nodes[position]['set_blockcircle_color'] = gre
+        elif position in {(1,1), (5,3)}:
+             Graph.nodes[position]['set_blockcircle_color'] = red
+        elif position in {(3,5), (5,1)}:
+             Graph.nodes[position]['set_blockcircle_color'] = blu
+
+        if blockcircle_num == first_set_colorblock_number:
+            Graph.nodes[position]['set_block'] = True
+            Graph.nodes[position]['set_blockcolor'] =  Graph.nodes[position]['set_blockcircle_color']
+
+        if blockcircle_num == first_set_blackblock_number:
+            Graph.nodes[position]['set_blockcolor'] = bla
+           # Graph.nodes[position]['set_blackblock'] = True
+        
+        if blockcircle_num == bonus_number:
+            Graph.nodes[position]['set_blackblock'] = False
+
+    # 初期化の時，ブロックサークル上に置かれているブロックの色を特定，排除
+    first_set_colorblock_postion = blockcircle_positions[first_set_colorblock_number-1]
+    colorblock = Graph.nodes[first_set_colorblock_postion]['set_blockcircle_color']
+    blocks_color.remove(colorblock)
+    crosscircle_blockcolors = random.sample(blocks_color, 8)
+    print('init put crosscircle blocks {} .\n'.format(crosscircle_blockcolors))
+    
+    #　交点サークル上にブロックを配置
+    for color, position in enumerate(first_set_block_positions, start=0):
+        Graph.nodes[position]['set_block'] = True
+        Graph.nodes[position]['set_blockcolor'] = crosscircle_blockcolors[color]
+        
+    Graph.add_weighted_edges_from(block_bingo_area_edge)
+    
+def goto_path_and_direction(shortest_route_list=shortest_route['path'], start_direction=east):
+    robots_direction = start_direction
+    moving_robots = shortest_route_list
+    for i in range(len(moving_robots)-1):
+        print("進む経路 : {} -> {},  現在の走行体の方向: {}".format(moving_robots[i], moving_robots[i+1], robots_direction) )
+        # 北 
+        if moving_robots[i][0] > moving_robots[i+1][0] and moving_robots[i][1] == moving_robots[i+1][1]:
+            print("次の走行体の方向: 北\n")
+            robots_direction = north
+        # 北東
+        elif moving_robots[i][0] > moving_robots[i+1][0] and moving_robots[i][1] < moving_robots[i+1][1]:
+            print("次の走行体の方向: 北東\n")
+            robots_direction = north_west
+        # 東
+        elif moving_robots[i][0] == moving_robots[i+1][0] and moving_robots[i][1] < moving_robots[i+1][1]:
+            print("次の走行体の方向: 東\n")
+            robots_direction = west
+        # 南東
+        elif moving_robots[i][0] < moving_robots[i+1][0] and moving_robots[i][1] < moving_robots[i+1][1]:
+            print("次の走行体の方向: 南東\n")
+            robots_direction = south_west
+        #  南
+        elif moving_robots[i][1] == moving_robots[i+1][1] and moving_robots[i][0] < moving_robots[i+1][0] :
+            print("次の走行体の方向: 南\n")
+            robots_direction = south
+        #　南西
+        elif moving_robots[i][0] < moving_robots[i+1][0] and moving_robots[i][1] > moving_robots[i+1][1]:
+            print("次の走行体の方向: 南西\n")
+            robots_direction = south_east
+        # 西
+        elif moving_robots[i][0] == moving_robots[i+1][0] and moving_robots[i][1] > moving_robots[i+1][1]:
+            print("次の走行体の方向: 西\n")
+            robots_direction = east
+        # 北西
+        elif  moving_robots[i][0] > moving_robots[i+1][0] and moving_robots[i][1] > moving_robots[i+1][1]:
+            print("次の走行体の方向: 北西\n")
+            robots_direction = north_east
+    
 
 
-# In[36]:
+# -
 
+# ### L, Rコースの最短探索経路を出す
 
-init_block_bingo_area()
+# LかRのどちらかで初期化
+init_block_bingo_areaR()
 
+# + {"code_folding": []}
+# start = (4,6) #L
+start = (4,6) # R
+start_direction = east
+i=0
 
-# In[37]:
+check_b_circle_list = []
+while(i<8):
+    i += 1
+    print("{}".format(i))
+    #交点サークル上のブロックとブロックサークルの色が同じ場合距離を計算する
+    route_list=[]
+    for block_position in first_set_block_positions: #　運ぶブロックの個数分
+        if not Graph.nodes[block_position]['set_block']: #ブロックが置かれてなかったらその地点からは考えなくていいよね
+            continue
+        for blockcircle_position in blockcircle_positions:
+            if Graph.nodes[block_position]['set_blockcolor'] == Graph.nodes[blockcircle_position]['set_blockcircle_color'] and Graph.nodes[blockcircle_position]['set_block'] == False: # カラーブロックの経路
+                carry_color = Graph.nodes[block_position]['set_blockcolor']
+                move_path = nx.dijkstra_path(Graph, source=start, target=block_position, weight='weight')
+                carry_path =  nx.dijkstra_path(Graph, source=block_position, target=blockcircle_position, weight='weight')
+                one_route_path = move_path+carry_path[1:]
+                one_route_cost = len(move_path)+len(carry_path[1:])
+                route_list.append({'path': one_route_path, 'cost':one_route_cost, 'block_on_crosscircle_pos':move_path[-1], 'carry_color': carry_color})
+            elif Graph.nodes[blockcircle_position]['blockcircle_number'] == bonus_number and Graph.nodes[block_position]['set_blockcolor'] == bla: #黒ブロックの経路
+                carry_color = Graph.nodes[block_position]['set_blockcolor']
+                move_path = nx.dijkstra_path(Graph, source=start, target=block_position, weight='weight')
+                carry_path =  nx.dijkstra_path(Graph, source=block_position, target=blockcircle_position, weight='weight')
+                one_route_path = move_path+carry_path[1:]
+                one_route_cost = len(move_path)+len(carry_path[1:]) +30
+                route_list.append({'path': one_route_path, 'cost':one_route_cost, 'block_on_crosscircle_pos':move_path[-1], 'carry_color': carry_color})
+    
+    # 最小の1ルートを決定する
+    shortest_route={'path':[], 'cost':INF}
+    for route in route_list:
+        if  route['cost'] < shortest_route['cost']:
+            shortest_route = route
+    print(shortest_route)
+    
+    ## 走行体が移動した時の状態を表示
+    goto_path_and_direction(shortest_route_list=shortest_route['path'], start_direction=start_direction)
+        
+    #走行体の現在位置とブロックの状態を更新
+    #走行体の現在位置を更新
+    if shortest_route['cost'] < 150:
+        start = shortest_route['path'][-2]
+        check_b_circle_list.append(shortest_route['path'][-1])
+        #ブロックの状態を更新
+        # ブロックサークル
+        placed_blockcircle_position = shortest_route['path'][-1]
+        Graph.nodes[placed_blockcircle_position]['set_block'] = True
+        Graph.nodes[placed_blockcircle_position]['set_blockcolor'] = shortest_route['carry_color']
+        # 交点サークル
+        removed_block4crosscircle_position = shortest_route['block_on_crosscircle_pos']
+        Graph.nodes[removed_block4crosscircle_position]['set_block'] = False
+        Graph.nodes[removed_block4crosscircle_position]['set_blockcolor'] = None
 
+# -
 
-# for g in Graph.nodes(data=True):
-#     print(g)
+first_set_colorblock_postion = blockcircle_positions[first_set_colorblock_number-1]
+first_set_colorblock_postion, check_b_circle_list
 
+# ## 素材置き場
 
-# ### Lコースの最短探索経路を出す
-
-# In[27]:
-
+# + {"code_folding": []}
+# carry_path[1:],len(carry_path[1:])
 
 for g in Graph.nodes(data=True):
     print(g)
@@ -315,69 +344,119 @@ for g in Graph.nodes(data=True):
 # start
 # removed_block4crosscircle_position
 
-
-# In[38]:
-
-
-start = (4,0)
-i=0
-
-while(i<8):
-    i += 1
-    print("{}".format(i))
-    #交点サークル上のブロックとブロックサークルの色が同じ場合距離を計算する
-    route_list=[]
-    for block_position in first_set_block_positions: #　運ぶブロックの個数分
-        if not Graph.nodes[block_position]['set_block']: #ブロックが置かれてなかったらその地点からは考えなくていいよね
-            continue
-        for blockcircle_position in blockcircle_positions:
-            if Graph.nodes[blockcircle_position]['set_block']:
-                continue
-            if Graph.nodes[block_position]['set_blockcolor'] == Graph.nodes[blockcircle_position]['set_blockcircle_color']:
-                carry_color = Graph.nodes[block_position]['set_blockcolor']
-                move_path = nx.dijkstra_path(Graph, source=start, target=block_position, weight='weight')
-                carry_path =  nx.dijkstra_path(Graph, source=block_position, target=blockcircle_position, weight='weight')
-                one_route_path = move_path+carry_path
-                one_route_cost = len(move_path)+len(carry_path)
-                route_list.append({'path': one_route_path, 'cost':one_route_cost, 'block_on_crosscircle_pos':move_path[-1], 'carry_color': carry_color})
-            elif Graph.nodes[blockcircle_position]['blockcircle_number'] == bonus_number and Graph.nodes[block_position]['set_blockcolor'] == bla:
-                carry_color = Graph.nodes[block_position]['set_blockcolor']
-                move_path = nx.dijkstra_path(Graph, source=start, target=block_position, weight='weight')
-                carry_path =  nx.dijkstra_path(Graph, source=block_position, target=blockcircle_position, weight='weight')
-                one_route_path = move_path+carry_path
-                one_route_cost = len(move_path)+len(carry_path)
-                route_list.append({'path': one_route_path, 'cost':one_route_cost, 'block_on_crosscircle_pos':move_path[-1], 'carry_color': carry_color})
+## 走行体が移動した時の方向を表示(静的)
+# robots_direction = east
+# moving_robots = shortest_route['path']
+# for i in range(len(moving_robots)-1):
+#     print("進む経路 : {} -> {},  現在の走行体の方向: {}".format(moving_robots[i], moving_robots[i+1], robots_direction) )
+#     # 北 
+#     if moving_robots[i][0] > moving_robots[i+1][0] and moving_robots[i][1] == moving_robots[i+1][1]:
+#         print("次の走行体の方向: 北\n")
+#         robots_direction = north
+#     # 北東
+#     elif moving_robots[i][0] > moving_robots[i+1][0] and moving_robots[i][1] < moving_robots[i+1][1]:
+#         print("次の走行体の方向: 北東\n")
+#         robots_direction = north_west
+#     # 東
+#     elif moving_robots[i][0] == moving_robots[i+1][0] and moving_robots[i][1] < moving_robots[i+1][1]:
+#         print("次の走行体の方向: 東\n")
+#         robots_direction = west
+#     # 南東
+#     elif moving_robots[i][0] < moving_robots[i+1][0] and moving_robots[i][1] < moving_robots[i+1][1]:
+#         print("次の走行体の方向: 南東\n")
+#         robots_direction = south_west
+#     #  南
+#     elif moving_robots[i][1] == moving_robots[i+1][1] and moving_robots[i][0] < moving_robots[i+1][0] :
+#         print("次の走行体の方向: 南\n")
+#         robots_direction = south
+#     #　南西
+#     elif moving_robots[i][0] < moving_robots[i+1][0] and moving_robots[i][1] > moving_robots[i+1][1]:
+#         print("次の走行体の方向: 南西\n")
+#         robots_direction = south_east
+#     # 西
+#     elif moving_robots[i][0] == moving_robots[i+1][0] and moving_robots[i][1] > moving_robots[i+1][1]:
+#         print("次の走行体の方向: 西\n")
+#         robots_direction = east
+#     # 北西
+#     elif  moving_robots[i][0] > moving_robots[i+1][0] and moving_robots[i][1] > moving_robots[i+1][1]:
+#         print("次の走行体の方向: 北西\n")
+#         robots_direction = north_east
     
-    # 最小の1ルートを決定する
-    shortest_route={'path':[], 'cost':INF}
-    for route in route_list:
-        if  route['cost'] < shortest_route['cost']:
-            shortest_route = route
-    print(shortest_route)
+# shortest_route, robots_direction
+## test
+# (4, 6) -> (4, 4)
+# 北 -> 北
+# (4, 4) -> (4, 2)
+# 北 -> 北
+# (4, 2) -> (6, 2)
+# 北 -> 西
+# (6, 2) -> (4, 2)
+# 北 -> 南
+# (4, 2) -> (2, 2)
+# 北 -> 北
 
-    #走行体の現在位置とブロックの状態を更新
-    #走行体の現在位置を更新
-    if shortest_route['cost'] < 150:
-        start = shortest_route['path'][-2]
-        #ブロックの状態を更新
-        # ブロックサークル
-        placed_blockcircle_position = shortest_route['path'][-1]
-        Graph.nodes[placed_blockcircle_position]['set_block'] = True
-        Graph.nodes[placed_blockcircle_position]['set_blockcolor'] = shortest_route['carry_color']
-        # 黒ブロック配置の場合はブロックサークル内にブロックを2個置く必要があるため'set_block'のリセット
-        if Graph.nodes[placed_blockcircle_position]['blockcircle_number'] == bonus_number:
-            print(placed_blockcircle_position)
-            Graph.nodes[placed_blockcircle_position]['set_block'] = False
-        # 交点サークル
-        removed_block4crosscircle_position = shortest_route['block_on_crosscircle_pos']
-        Graph.nodes[removed_block4crosscircle_position]['set_block'] = False
-        Graph.nodes[removed_block4crosscircle_position]['set_blockcolor'] = None
+# + {"code_folding": [1]}
+count=0
+block_bingo_area_co_ro = [
+    [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6)],
 
+    [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6)],
 
-# ## 素材置き場
+    [(2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6)],
 
-# In[ ]:
+    [(3, 0), (3, 1), (3, 2), (3, 3), (3, 4), (3, 5), (3, 6)],
 
+    [(4, 0), (4, 1), (4, 2), (4, 3), (4, 4), (4, 5), (4, 6)],
+
+    [(5, 0), (5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (5, 6)],
+
+    [(6, 0), (6, 1), (6, 2), (6, 3), (6, 4), (6, 5), (6, 6)]
+]
+
+crosscircle_positions = [
+    (0, 0), (0, 2), (0, 4), (0, 6),
+    (2, 0), (2, 2), (2, 4), (2, 6),
+    (4, 0), (4, 2), (4, 4), (4, 6),
+    (6, 0), (6, 2), (6, 4), (6, 6),
+]
+
+blockcircle_positions_co_ro = [
+    (1,1), (1,3), (1,5), 
+    (3,1), (3,5), 
+    (5,1), (5,3), (5,5)
+    # 1,2,3,4,5,6,7,8
+]
+
+# print("[")
+# for i in range(4):
+#     for j in range(4):
+#         if i+1 < 6:
+#             print("({}, {},1),".format(block_bingo_area_co_ro[j][i], 
+#                                        block_bingo_area_co_ro[j][i+2]))
+#             count +=1
+            
+#         if i-1 > 0:
+#             print("({}, {},1),".format(block_bingo_area_co_ro[j][i], 
+#                                        block_bingo_area_co_ro[j][i-2]))
+#             count +=1
+            
+#         if j+1 < 7:
+#             print("({}, {},1),".format(crosscircle_positions[j][i],
+#                                        crosscircle_positions[j+1][i]))
+#             count+=1
+            
+#         if j-1 > -1:
+#             print("({}, {},1),".format(crosscircle_positions[j][i], 
+#                                            crosscircle_positions[j-1][i]))
+#             count+=1
+# print("]")
+
+for c_p in crosscircle_positions:
+    for b_p in blockcircle_positions_co_ro:
+        print("({}, {},1),".format(c_p, b_p))
+        count +=1
+count
+# -
 
 print(nx.dijkstra_path(Graph, source=(4,0), target=(5,3), weight='weight'))
 print(nx.dijkstra_path_length(Graph, source=(4,0), target=(5,3), weight='weight'))
@@ -385,17 +464,69 @@ for pred in nx.dijkstra_predecessor_and_distance(G=Graph, source=(4,0), weight='
     print("{}\n".format(pred))
 
 
-# In[7]:
+# +
+def dijkstra(s,n,w,cost):
+    #始点sから各頂点への最短距離
+    #n:頂点数,　w:辺の数, cost[u][v] : 辺uvのコスト(存在しないときはinf)
+    d = [float("inf")] * n
+    used = [False] * n
+    d[s] = 0
+    
+    while True:
+        v = -1
+        #まだ使われてない頂点の中から最小の距離のものを探す
+        for i in range(n):
+            if (not used[i]) and (v == -1):
+               v = i
+            elif (not used[i]) and d[i] < d[v]:
+                v = i
+        if v == -1:
+               break
+        used[v] = True
+               
+        for j in range(n):
+               d[j] = min(d[j],d[v]+cost[v][j])
+    return d
 
+################################
+n,w = map(int,input().split()) #n:頂点数　w:辺の数
 
-get_ipython().run_line_magic('reset', '')
+cost = [[float("inf") for i in range(n)] for i in range(n)] 
+#cost[u][v] : 辺uvのコスト(存在しないときはinf この場合は10**10)
+for i in range(w):
+    x,y,z = map(int,input().split())
+    cost[x][y] = z
+    cost[y][x] = z
+print(dijkstra(0,n,w,cost))
+# -
+
+block_edge = [[(j,i)for i in range(7)]for j in range(7)]
+
+from pulp import *
+import networkx as nx
+g = nx.fast_gnp_random_graph(8, 0.26, 1).to_directed()
+# source, sink = 0, 2 # 始点, 終点
+# r = list(enumerate(g.edges()))
+# m = LpProblem() # 数理モデル
+# x = [LpVariable('x%d'%k, lowBound=0, upBound=1) for k, (i, j) in r] # 変数(路に入るかどうか)
+# m += lpSum(x) # 目的関数
+# for nd in g.nodes():
+#     m += lpSum(x[k] for k, (i, j) in r if i == nd) == lpSum(x[k] for k, (i, j) in r if j == nd) + {source:1, sink:-1}.get(nd, 0) # 制約
+# #     print(m)
+# m.solve()
+# print([(i, j) for k, (i, j) in r if value(x[k]) > 0.5])
+
+Graph.nodes['set_block']
+
+# +
+# %reset
 route_list = [[0, 5, 4, 2, 0, 0], [5, 0, 2, 0, 0, 6], [4, 2, 0, 3, 2, 0],
               [2, 0, 3, 0, 6, 0], [0, 0, 2, 6, 0, 4], [0, 6, 0, 0, 4, 0]]
 
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
-get_ipython().run_line_magic('matplotlib', 'inline')
+# %matplotlib inline
 
 # ノード数、各エッジコストなどを初期情報route_listから取得
 node_count = len(route_list)
@@ -494,116 +625,7 @@ while previous_node != -1:
 
 print("-----距離-----")
 print(minimum_distances_from_startnode[node_count - 1])
-
-
-# In[17]:
-
-
-def dijkstra(s,n,w,cost):
-    #始点sから各頂点への最短距離
-    #n:頂点数,　w:辺の数, cost[u][v] : 辺uvのコスト(存在しないときはinf)
-    d = [float("inf")] * n
-    used = [False] * n
-    d[s] = 0
-    
-    while True:
-        v = -1
-        #まだ使われてない頂点の中から最小の距離のものを探す
-        for i in range(n):
-            if (not used[i]) and (v == -1):
-               v = i
-            elif (not used[i]) and d[i] < d[v]:
-                v = i
-        if v == -1:
-               break
-        used[v] = True
-               
-        for j in range(n):
-               d[j] = min(d[j],d[v]+cost[v][j])
-    return d
-
-################################
-n,w = map(int,input().split()) #n:頂点数　w:辺の数
-
-cost = [[float("inf") for i in range(n)] for i in range(n)] 
-#cost[u][v] : 辺uvのコスト(存在しないときはinf この場合は10**10)
-for i in range(w):
-    x,y,z = map(int,input().split())
-    cost[x][y] = z
-    cost[y][x] = z
-print(dijkstra(0,n,w,cost))
-
-
-# In[18]:
-
-
-block_edge = [[(j,i)for i in range(7)]for j in range(7)]
-
-
-# In[51]:
-
-
-count=0
-print("[")
-for i in range(7):
-    for j in range(7):
-        if i+1 < 7:
-            if i in {1,3,5}:
-                print("({}, {},5),".format(block_edge[j][i], block_edge[j][i+1]))
-            else:
-                print("({}, {},1),".format(block_edge[j][i], block_edge[j][i+1]))
-            count +=1
-            
-        if i-1 > -1:
-            if i in {1,3,5}:
-                print("({}, {},5),".format(block_edge[j][i], block_edge[j][i-1]))
-            else:
-                print("({}, {},1),".format(block_edge[j][i], block_edge[j][i-1]))
-            count +=1
-            
-        if j+1 < 7:
-            if j in {1,3,5}:
-                print("({}, {},5),".format(block_edge[j][i], block_edge[j+1][i]))
-            else:
-                print("({}, {},1),".format(block_edge[j][i], block_edge[j+1][i]))
-            count+=1
-            
-        if j-1 > -1:
-            if j in {1,3,5}:
-                print("({}, {},5),".format(block_edge[j][i], block_edge[j-1][i]))
-            else:
-                print("({}, {},1),".format(block_edge[j][i], block_edge[j-1][i]))
-            count+=1
-            
-print("]")
-count
-
-
-# In[11]:
-
-
-from pulp import *
-import networkx as nx
-g = nx.fast_gnp_random_graph(8, 0.26, 1).to_directed()
-# source, sink = 0, 2 # 始点, 終点
-# r = list(enumerate(g.edges()))
-# m = LpProblem() # 数理モデル
-# x = [LpVariable('x%d'%k, lowBound=0, upBound=1) for k, (i, j) in r] # 変数(路に入るかどうか)
-# m += lpSum(x) # 目的関数
-# for nd in g.nodes():
-#     m += lpSum(x[k] for k, (i, j) in r if i == nd) == lpSum(x[k] for k, (i, j) in r if j == nd) + {source:1, sink:-1}.get(nd, 0) # 制約
-# #     print(m)
-# m.solve()
-# print([(i, j) for k, (i, j) in r if value(x[k]) > 0.5])
-
-
-# In[30]:
-
-
-Graph.nodes['set_block']
-
-
-# In[15]:
+# -
 
 
 
