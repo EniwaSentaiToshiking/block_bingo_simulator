@@ -21,7 +21,7 @@
 # ### random.seedの値を変更してもらえると組み合わせが変わります
 # #### 常にバラバラな初期化を求めるあなた randam.seedをコメントアウトすればOKです
 
-# + {"code_folding": [64, 104, 148, 187]}
+# + {"code_folding": [64, 149, 188]}
 # ダイクストラ法 Left
 
 
@@ -153,7 +153,8 @@ def init_block_bingo_areaL():
            # Graph.nodes[position]['set_blackblock'] = True
 
     # 初期化の時，ブロックサークル上に置かれているブロックの色を特定，排除
-    colorblock = Graph.nodes[blockcircle_positions[first_set_colorblock_number-1]]['set_blockcircle_color']
+    first_set_colorblock_postion = blockcircle_positions[first_set_colorblock_number-1]
+    colorblock = Graph.nodes[first_set_colorblock_postion]['set_blockcircle_color']
     blocks_color.remove(colorblock)
     crosscircle_blockcolors = random.sample(blocks_color, 8)
     print('init put crosscircle blocks {} .\n'.format(crosscircle_blockcolors))
@@ -260,12 +261,12 @@ init_block_bingo_areaR()
 # start = (4,6) #L
 start = (4,6) # R
 start_direction = east
-i=0
+determine_route_count=0
 
 check_b_circle_list = []
-while(i<8):
-    i += 1
-    print("{}".format(i))
+while(determine_route_count<8):
+    determine_route_count += 1
+    print("{}".format(determine_route_count))
     #交点サークル上のブロックとブロックサークルの色が同じ場合距離を計算する
     route_list=[]
     for block_position in first_set_block_positions: #　運ぶブロックの個数分
@@ -290,6 +291,10 @@ while(i<8):
     # 最小の1ルートを決定する
     shortest_route={'path':[], 'cost':INF}
     for route in route_list:
+        #180度回転をなくす処理
+        for idx in range(len(route['path'])-2):
+            if route['path'][idx] == route['path'][idx+2]: # (0,2)->(2,2)->(0,2)みたいな移動は180ターン使わないと無理だよね　だから排除
+                route['cost'] = INF
         if  route['cost'] < shortest_route['cost']:
             shortest_route = route
     print(shortest_route)
@@ -318,6 +323,8 @@ first_set_colorblock_postion = blockcircle_positions[first_set_colorblock_number
 first_set_colorblock_postion, check_b_circle_list
 
 # ## 素材置き場
+
+one_route_path
 
 # + {"code_folding": []}
 # carry_path[1:],len(carry_path[1:])
